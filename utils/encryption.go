@@ -9,23 +9,20 @@ import (
 	"io"
 	"log"
 	mrand "math/rand"
+	"password-manager/config"
 	"time"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const digitBytes = "0123456789"
-const symbolBytes = "!@#$%^&*()-_=+[]{}<>?"
-
-var encryptionKey = []byte("my32characterlongencryptionkey1!")
+var encryptionKey = []byte(config.EncryptionKey)
 
 func GeneratePassword(length int, useDigits, useSymbols bool) string {
 	generator := mrand.New(mrand.NewSource(time.Now().UnixNano()))
-	charset := letterBytes
+	charset := config.LetterBytes
 	if useDigits {
-		charset += digitBytes
+		charset += config.DigitBytes
 	}
 	if useSymbols {
-		charset += symbolBytes
+		charset += config.SymbolBytes
 	}
 
 	result := make([]byte, length)

@@ -44,10 +44,8 @@ func (api *API) CreatePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Декодированный пароль:", p.Password)
-
 	if err := api.Repo.CreatePassword(&p); err != nil {
-		log.Println("Ошибка создания пароля:", err) // Логируем ошибку
+		log.Println("Ошибка создания пароля:", err)
 		http.Error(w, "Failed to create password", http.StatusInternalServerError)
 		return
 	}

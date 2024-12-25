@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"password-manager/api"
+	"password-manager/config"
 	"password-manager/db"
 
 	"github.com/gorilla/mux"
@@ -41,8 +42,8 @@ func main() {
 		w.Write([]byte(`{"id": "` + id + `"}`))
 	}).Methods("GET")
 
-	log.Println("Сервер запущен на http://localhost:8080")
-	if err := http.ListenAndServe(":8080", router); err != nil {
+	log.Println("Сервер запущен на http://localhost" + config.ServerPort)
+	if err := http.ListenAndServe(config.ServerPort, router); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 }
