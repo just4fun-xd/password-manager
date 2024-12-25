@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"io"
+	"log"
 	mrand "math/rand"
 	"time"
 )
@@ -15,7 +16,7 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const digitBytes = "0123456789"
 const symbolBytes = "!@#$%^&*()-_=+[]{}<>?"
 
-var encryptionKey = []byte("my32charsecretkey123456789012")
+var encryptionKey = []byte("my32characterlongencryptionkey1!")
 
 func GeneratePassword(length int, useDigits, useSymbols bool) string {
 	generator := mrand.New(mrand.NewSource(time.Now().UnixNano()))
@@ -37,6 +38,7 @@ func GeneratePassword(length int, useDigits, useSymbols bool) string {
 func Encrypt(text string) (string, error) {
 	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
+		log.Println("Ошибка создания шифра AES:", err)
 		return "", err
 	}
 
@@ -45,13 +47,14 @@ func Encrypt(text string) (string, error) {
 	// Генерация случайного IV
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		log.Println("Ошибка генерации IV:", err)
 		return "", err
 	}
 
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
-
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+	encrypted := base64.StdEncoding.EncodeToString(ciphertext)
+	return encrypted, nil
 }
 
 func Decrypt(encrypted string) (string, error) {
@@ -74,6 +77,5 @@ func Decrypt(encrypted string) (string, error) {
 
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(ciphertext, ciphertext)
-
 	return string(ciphertext), nil
 }

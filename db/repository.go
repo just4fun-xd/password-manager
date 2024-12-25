@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"password-manager/models"
+	"password-manager/utils"
 )
 
 type Repository struct {
@@ -14,8 +15,12 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) CreatePassword(p *models.Password) error {
+	encryptedPassword, err := utils.Encrypt(p.Password)
+	if err != nil {
+		return err
+	}
 	query := "INSERT INTO passwords (service_name, username, password) VALUES (?, ?, ?)"
-	_, err := r.DB.Exec(query, p.ServiceName, p.Username, p.Password)
+	_, err = r.DB.Exec(query, p.ServiceName, p.Username, encryptedPassword)
 	return err
 }
 
@@ -33,6 +38,11 @@ func (r *Repository) GetPasswords() ([]models.Password, error) {
 		if err := rows.Scan(&p.ID, &p.ServiceName, &p.Username, &p.Password, &p.CreatedAt); err != nil {
 			return nil, err
 		}
+		decryptedPassword, err := utils.Decrypt(p.Password)
+		if err != nil {
+			return nil, err
+		}
+		p.Password = decryptedPassword
 		passwords = append(passwords, p)
 	}
 	return passwords, nil
